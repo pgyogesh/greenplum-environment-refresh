@@ -8,11 +8,12 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("-t","--type", metavar="<type>", choices=['pg_dump','gpcrondump'],
                    required=True, action="store",help="Specify the type of backup")
-
-
-config = ConfigParser.ConfigParser()
-config.read("config_file.conf")
+parser.add_argument("-c","--config_file", required=True,
+		    action="store",help="Specify the config file")
 options, args = parser.parse_args()
+config = ConfigParser.ConfigParser()
+config.read(options.config_file)
+
 
 # Source System Information
 source_db = config.get("source","database")
@@ -29,31 +30,31 @@ target_user = config.get("target","user")
 target_port = config.get("target","port")
 
 def pg_dump_backup():
-    backup_command="pg_dump -d %s -h %s -U %s -n %s > %s" %(source_db,source_host,source_user,source_schema,backup_file)
-    os.popen(backup_command)
+    	backup_command="pg_dump -d %s -h %s -U %s -n %s > %s" %(source_db,source_host,source_user,source_schema,backup_file)
+    	os.popen(backup_command)
   
 def pg_dump_restore():
-    restore_command="psql -d %s -h %s -U %s < %s" %(target_db,target_host,target_user,backup_file)
-    os.popen(restore_command)
+    	restore_command="psql -d %s -h %s -U %s < %s" %(target_db,target_host,target_user,backup_file)
+    	os.popen(restore_command)
     
 def gpcrondump_backup():
-    backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)
-    os.popen(backup_command)
+    	backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)
+    	os.popen(backup_command)
 
 def gpdbrestore_restore():
-    restore_command="gpdbrestore -t %s --noanalyze --redirect %s" %(backup_timestamp,target_db)
-    os.popen(restore_command)
+    	restore_command="gpdbrestore -t %s --noanalyze --redirect %s" %(backup_timestamp,target_db)
+    	os.popen(restore_command)
 
 def get_backupkey():
 	con = DB()
-    opts = backup_command[11:]
-    key = con.query("SELECT dump_key FROM gpcrondump_history where options = '%s' AND exit_text = 'COMPLETED' ORDER BY dump_key desc limit 1" %opts)
-    row = key.dictresult()
-    dump_key = row[0]["dump_key"]
-    return int(dump_key)
+    	opts = backup_command[11:]
+   	key = con.query("SELECT dump_key FROM gpcrondump_history where options = '%s' AND exit_text = 'COMPLETED' ORDER BY dump_key desc limit 1" %opts)
+    	row = key.dictresult()
+    	dump_key = row[0]["dump_key"]
+    	return int(dump_key)
 
 if __name__ == '__main__':
-    if options.type == 'pg_dump':
+	if options.type == 'pg_dump':
 		pg_dump_backup()
 		pg_dump_restore()
 	elif options.type == 'gpcrondump':
@@ -61,6 +62,3 @@ if __name__ == '__main__':
 		gpdbrestore_restore()
 	else:
 		print("Invalid Backup Type. Please choose from pg_dump or gpcrondump")
-		
-		
-    

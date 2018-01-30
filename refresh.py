@@ -1,11 +1,13 @@
 import sys
 import os
+import logging
 import ConfigParser
 import argparse
 from pygresql.pg import DB
 
-parser = argparse.ArgumentParser()
+logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',level=logging.DEBUG)
 
+parser = argparse.ArgumentParser()
 parser.add_argument("-t","--type", metavar="<type>", choices=['pg_dump','gpcrondump'],
                    required=True, action="store",help="Specify the type of backup")
 parser.add_argument("-c","--config_file", required=True,

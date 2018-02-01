@@ -65,7 +65,6 @@ if __name__ == '__main__':
 		pg_dump_restore()
 	elif args.type == 'gpcrondump':
 		gpcrondump_backup()
-        get_backupkey()
 		gpdbrestore_restore()
 	else:
 		print("Invalid Backup Type. Please choose from pg_dump or gpcrondump")

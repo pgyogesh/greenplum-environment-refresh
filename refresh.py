@@ -46,7 +46,7 @@ def gpcrondump_backup():
     os.popen(backup_command)
 
 def gpdbrestore_restore():
-    restore_command="gpdbrestore -t %s --noanalyze --redirect %s" %(backup_timestamp,target_db)
+    restore_command="gpdbrestore -t %s --noanalyze --redirect %s" %(get_backupkey(),target_db)
     os.popen(restore_command)
 
 def get_backupkey():

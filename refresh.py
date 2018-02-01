@@ -33,6 +33,8 @@ target_host = config.get("target","host")
 target_user = config.get("target","user")
 target_port = config.get("target","port")
 
+backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)
+
 def pg_dump_backup():
     backup_command="pg_dump -d %s -h %s -U %s -n %s > %s" %(source_db,source_host,source_user,source_schema,backup_file)
     os.popen(backup_command)

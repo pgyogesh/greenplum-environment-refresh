@@ -44,11 +44,11 @@ def pg_dump_restore():
     os.popen(restore_command)
 
 def gpcrondump_backup():
-    backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)
+    backup_command="gpcrondump -x %s -s %s -h -a 2> /dev/null" %(source_db,source_schema)
     os.popen(backup_command)
 
 def gpdbrestore_restore():
-    restore_command="gpdbrestore -t %s --noanalyze --redirect %s" %(get_backupkey(),target_db)
+    restore_command="gpdbrestore -t %s --noanalyze --redirect %s 2> /dev/null" %(get_backupkey(),target_db)
     os.popen(restore_command)
 
 def get_backupkey():

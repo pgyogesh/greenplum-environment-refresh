@@ -18,6 +18,7 @@ config.read(options.config_file)
 
 
 # Source System Information
+logging.info("Getting source database Information")
 source_db = config.get("source","database")
 source_host = config.get("source","host")
 source_user = config.get("source","user")
@@ -26,6 +27,7 @@ source_schema = config.get("source","schema")
 backup_file = config.get("source","backup_file")
 
 # Target System Information
+logging.info("Getting target database Information")
 target_db = config.get("target","database")
 target_host = config.get("target","host")
 target_user = config.get("target","user")
@@ -34,11 +36,11 @@ target_port = config.get("target","port")
 def pg_dump_backup():
     	backup_command="pg_dump -d %s -h %s -U %s -n %s > %s" %(source_db,source_host,source_user,source_schema,backup_file)
     	os.popen(backup_command)
-  
+
 def pg_dump_restore():
     	restore_command="psql -d %s -h %s -U %s < %s" %(target_db,target_host,target_user,backup_file)
     	os.popen(restore_command)
-    
+
 def gpcrondump_backup():
     	backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)
     	os.popen(backup_command)

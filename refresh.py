@@ -32,6 +32,16 @@ target_db = config.get("target","database")
 target_host = config.get("target","host")
 target_user = config.get("target","user")
 target_port = config.get("target","port")
+target_schema = config.get("target","schema")
+
+logging.info("============Backup Details============")
+logging.info("Source Database = %s" %source_db)
+logging.info("Source Schema   = %s" %source_schema)
+logging.info("============Restore Details============")
+logging.info("Target Database = %s" %target_db)
+logging.info("Target Schema   = %s" %target_schema)
+
+
 
 backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)
 

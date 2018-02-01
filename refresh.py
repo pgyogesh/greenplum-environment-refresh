@@ -14,7 +14,7 @@ parser.add_argument("-c","--config_file", required=True,
 		           action="store",help="Specify the config file")
 args = parser.parse_args()
 config = ConfigParser.ConfigParser()
-config.read(options.config_file)
+config.read(args.config_file)
 
 
 # Source System Information

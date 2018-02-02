@@ -62,8 +62,22 @@ def gpcrondump_backup():
     	p = os.popen(backup_command)
 
 def gpdbrestore_restore():
+	logging.info("Checking if %s schema already exists in %s database" %(target_schema,target_db))
 	con = DB(dbname=target_db, host=target_host, port=target_port, user=target_user)
-	
+	schema = con.query("SELECT nspname FROM pg_namespace where nspname = %s" %target_schema)
+	row = schema.dictresult()
+	if row:
+		logging.info("%s schema already exists in %s database" %(target_schema,target_db))
+		logging.info("Renaming %s schema to %s_hold" %(target_schema,target_schema))
+		con.query("ALTER SCHEMA %s RENAME to %s_hold" %(target_schema,target_schema))
+		schema = con.query("SELECT nspname FROM pg_namespace where nspname = %s" %target_schema)
+		row = schema.dictresult()
+		if row:
+			logging.info("Failed to rename %s schema to %s_hold" %(target_scheme,target_schema))
+		else:
+			logging.info("%s schema renamed successfully to %s_hold" %(target_scheme,target_schema))
+	else:
+		logging.info("%s schema doesn't exists in %s. Good to restore backup" %(target_schema,target_db)
    	restore_command="gpdbrestore -t %s --noanalyze --redirect %s -a 2> /dev/null" %(get_backupkey(),target_db)
     	os.popen(restore_command)
 

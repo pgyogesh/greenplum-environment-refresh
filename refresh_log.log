@@ -1,0 +1,49 @@
+2018-02-01 21:34:05,488:INFO:Getting source database Information
+2018-02-01 21:34:05,488:INFO:Getting target database Information
+2018-02-01 21:34:05,488:INFO:Source Database        = icprod
+2018-02-01 21:34:05,488:INFO:Target Database        = icuat
+2018-02-01 21:34:17,224:INFO:Checking if test1 schema exists in icuat database
+2018-02-01 21:34:17,232:INFO:test1 schema already exists in icuat database
+2018-02-01 21:34:17,232:INFO:Renaming test1 schema to test1_hold_20180201213405
+2018-02-01 21:34:17,275:INFO:test1 schema renamed successfully to test1_hold_20180201213405
+2018-02-01 21:34:17,276:INFO:Checking if test2 schema exists in icuat database
+2018-02-01 21:34:17,279:INFO:test2 schema already exists in icuat database
+2018-02-01 21:34:17,280:INFO:Renaming test2 schema to test2_hold_20180201213405
+2018-02-01 21:34:17,291:INFO:test2 schema renamed successfully to test2_hold_20180201213405
+2018-02-01 21:34:17,292:INFO:Checking if test3 schema exists in icuat database
+2018-02-01 21:34:17,297:INFO:test3 schema already exists in icuat database
+2018-02-01 21:34:17,297:INFO:Renaming test3 schema to test3_hold_20180201213405
+2018-02-01 21:34:17,312:INFO:test3 schema renamed successfully to test3_hold_20180201213405
+2018-02-01 21:34:24,414:INFO:Restore completed for test1 schema
+2018-02-01 21:34:24,427:INFO:Restore completed for test2 schema
+2018-02-01 21:34:24,441:INFO:Restore completed for test3 schema
+2018-02-01 21:34:24,442:INFO:Checking if temp files already exists
+2018-02-01 21:34:25,651:INFO:Fetching grant SQL statement from /tmp/test1_20180201.sql
+2018-02-01 21:34:25,652:INFO:Fetching 'ALTER TABLE .. OWNER TO' SQL statement from /tmp/test1_20180201.sql
+2018-02-01 21:34:25,652:INFO:Generating revoke statements from /tmp/test1_20180201.sql
+2018-02-01 21:34:25,652:INFO:Creating new GRANT statement's file with uat roles
+2018-02-01 21:34:25,652:INFO:Creating new 'ALTER TABLE .. OWNER TO' statement file with uat roles
+2018-02-01 21:34:25,653:INFO:Gathering all statements in one SQL file: /tmp/uat_test1_refresh_20180201.sql
+2018-02-01 21:34:25,653:INFO:Deleting temporary files
+2018-02-01 21:34:25,653:INFO:Running generated SQL file
+2018-02-01 21:34:25,726:INFO:Environment refresh from prod to uat completed
+2018-02-01 21:34:25,727:INFO:Checking if temp files already exists
+2018-02-01 21:34:26,972:INFO:Fetching grant SQL statement from /tmp/test2_20180201.sql
+2018-02-01 21:34:26,972:INFO:Fetching 'ALTER TABLE .. OWNER TO' SQL statement from /tmp/test2_20180201.sql
+2018-02-01 21:34:26,972:INFO:Generating revoke statements from /tmp/test2_20180201.sql
+2018-02-01 21:34:26,972:INFO:Creating new GRANT statement's file with uat roles
+2018-02-01 21:34:26,973:INFO:Creating new 'ALTER TABLE .. OWNER TO' statement file with uat roles
+2018-02-01 21:34:26,973:INFO:Gathering all statements in one SQL file: /tmp/uat_test2_refresh_20180201.sql
+2018-02-01 21:34:26,973:INFO:Deleting temporary files
+2018-02-01 21:34:26,973:INFO:Running generated SQL file
+2018-02-01 21:34:27,011:INFO:Environment refresh from prod to uat completed
+2018-02-01 21:34:27,011:INFO:Checking if temp files already exists
+2018-02-01 21:34:28,083:INFO:Fetching grant SQL statement from /tmp/test3_20180201.sql
+2018-02-01 21:34:28,084:INFO:Fetching 'ALTER TABLE .. OWNER TO' SQL statement from /tmp/test3_20180201.sql
+2018-02-01 21:34:28,084:INFO:Generating revoke statements from /tmp/test3_20180201.sql
+2018-02-01 21:34:28,084:INFO:Creating new GRANT statement's file with uat roles
+2018-02-01 21:34:28,084:INFO:Creating new 'ALTER TABLE .. OWNER TO' statement file with uat roles
+2018-02-01 21:34:28,084:INFO:Gathering all statements in one SQL file: /tmp/uat_test3_refresh_20180201.sql
+2018-02-01 21:34:28,085:INFO:Deleting temporary files
+2018-02-01 21:34:28,085:INFO:Running generated SQL file
+2018-02-01 21:34:28,124:INFO:Environment refresh from prod to uat completed

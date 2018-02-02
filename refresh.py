@@ -54,8 +54,8 @@ def pg_dump_restore():
     os.popen(restore_command)
 
 def gpcrondump_backup():
-    backup_command="gpcrondump -x %s -s %s -h -a 2> /dev/null" %(source_db,source_schema)
-    os.popen(backup_command)
+    backup_command="gpcrondump -x %s -s %s -h -a 2> dev/null" %(source_db,source_schema)
+    p = os.popen(backup_command)
 
 def gpdbrestore_restore():
     restore_command="gpdbrestore -t %s --noanalyze --redirect %s -a 2> /dev/null" %(get_backupkey(),target_db)
@@ -73,8 +73,12 @@ if __name__ == '__main__':
 	if args.type == 'pg_dump':
 		pg_dump_backup()
 		pg_dump_restore()
-	elif args.type == 'gpcrondump':
+	else:
 		gpcrondump_backup()
 		gpdbrestore_restore()
-	else:
-		print("Invalid Backup Type. Please choose from pg_dump or gpcrondump")
+
+
+# Backup Check
+# timestamp = now.strftime("%Y%m%d%H%M%S")
+# if timestamp > dump_key
+# Backup is failed

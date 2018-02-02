@@ -24,8 +24,8 @@ source_db = config.get("source","database")
 source_host = config.get("source","host")
 source_user = config.get("source","user")
 source_port = config.get("source","port")
-source_schema = config.get("source","schema")
-backup_file = config.get("source","backup_file")
+source_schemafile = config.get("source","schema-file")
+source_environment = config.get("source","environment")
 
 # Target System Information
 logging.info("Getting target database Information")
@@ -33,7 +33,8 @@ target_db = config.get("target","database")
 target_host = config.get("target","host")
 target_user = config.get("target","user")
 target_port = config.get("target","port")
-target_schema = config.get("target","schema")
+target_schemafile = config.get("target","schema-file")
+target_environment = config.get("target","environment")
 
 # Getting timestamp of script start, Later this timestamp will be used to compare with dump_key from gpcrondump_history. 
 now = datetime.datetime.now()
@@ -45,7 +46,6 @@ logging.info("Source Database        = %s" %source_db)
 logging.info("Source Schema          = %s" %source_schema)
 logging.info("============Restore Details============")
 logging.info("Target Database = %s" %target_db)
-logging.info("Target Schema   = %s" %target_schema)
 
 backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)
 
@@ -65,6 +65,13 @@ def gpdbrestore_restore():
 	target_schema_check()
    	restore_command="gpdbrestore -t %s --noanalyze --redirect %s -a 2> /dev/null" %(get_backupkey(),target_db)
     	os.popen(restore_command)
+	schemas = ''
+	for num,line in enumerate(source_schemafile, 1):
+		schema = line.rstrip('\n')
+		schemas = schemas + schema + ','
+	
+	con = DB(dbname=target_db, host=target_host, port=target_port, user=target_user)
+	schema_count = con.query("SELECT count(nspname) FROM pg_namespace where nspname in ("%s" %schemas))
 
 def target_schema_check():
 	logging.info("Checking if %s schema already exists in %s database" %(target_schema,target_db))
@@ -83,14 +90,102 @@ def target_schema_check():
 			logging.info("%s schema renamed successfully to %s_hold" %(target_scheme,target_schema))
 	else:
 		logging.info("%s schema doesn't exists in %s. Good to restore backup" %(target_schema,target_db))
-		
+	con.close()
+	
 def get_backupkey():
     	con = DB(dbname=source_db, host=source_host, port=source_port, user=source_user)
     	opts = backup_command[11:]
     	key = con.query("SELECT dump_key FROM gpcrondump_history where options = '%s' AND exit_text = 'COMPLETED' ORDER BY dump_key desc limit 1" %opts)
     	row = key.dictresult()
     	dump_key = row[0]["dump_key"]
+	con.close()
     	return int(dump_key)
+
+def permission_switch(schemaname):
+	temp_files = ['/tmp/grantfile.sql','/tmp/grantfile_temp.sql','/tmp/revokefile.sql','/tmp/revokefile_temp.sql','/tmp/ownerfile.sql','/tmp/ownerfile_temp.sql']
+	logging.info("Checking if temp files already exists")
+	
+	for file in temp_files:
+		if os.path.isfile(file):
+			os.remove(file)
+	
+	sql_file='/tmp/%s_%s.sql' %(schemaname,%now.strftime("%Y%m%d"))
+	schema_backup_command = "pg_dump %s -n %s > %s" %(target_db,schemaname,sql_file)
+	os.popen(schema_backup_command)
+	v_sqlfile=open(sql_file,'r')
+	logging.info("Fetching grant SQL statement from " + sql_file)
+	v_grantfile=open("/tmp/grantfile.sql","a")
+	for g_line in v_sqlfile:
+		g_line = g_line.rstrip()
+		if re.search('^GRANT',g_line):
+			v_grantfile.writelines(g_line)
+			v_grantfile.write('\n')
+	v_grantfile.close()
+	
+	logging.info("Fetching 'ALTER TABLE .. OWNER TO' SQL statement from " + sql_file)
+	v_ownerfile=open("/tmp/ownerfile.sql","a")
+	for o_line in v_sqlfile:
+		o_line = o_line.rstrip()
+		if re.search("OWNER TO",o_line):
+			v_ownerfile.writelines(o_line)
+			v_ownerfile.write('\n')
+	v_ownerfile.close()
+	
+	logging.info("Generating revoke statements from " + sql_file)
+	v_grantfile=open("/tmp/grantfile.sql","r")
+	v_revokefile=open("/tmp/revokefile.sql","a")
+	for r_line in v_grantfile:
+		revoke_line = r_line.replace("GRANT","REVOKE")
+		from_line = revoke_line.replace(" TO ", " FROM ")
+		v_revokefile.writelines(from_line)
+	v_revokefile.close()
+	v_grantfile.close()
+	
+	logging.info("Creating new GRANT statement's file with "+ target_environment + " roles")
+	v_grantfile=open("/tmp/grantfile.sql","r")
+	v_grantfile_temp=open("/tmp/grantfile_temp.sql","a")
+	for r_line in v_grantfile:
+		new_role_line = r_line.replace('_' + source_environment + '_', '_' + target_environment + '_')
+		v_grantfile_temp.writelines(new_role_line)
+	v_grantfile.close()
+	v_grantfile_temp.close()
+	
+	logging.info("Creating new 'ALTER TABLE .. OWNER TO' statement file with "+ target_environment + " roles")
+	v_ownerfile=open("/tmp/ownerfile.sql","r")
+	v_ownerfile_temp=open("/tmp/ownerfile_temp.sql","a")
+	for o_line in v_ownerfile:
+		new_role_line = o_line.replace('_' + source_environment + '_', '_' + target_environment + '_')
+		v_ownerfile_temp.writelines(new_role_line)
+	v_ownerfile.close()
+	v_ownerfile_temp.close()
+	logging.info("Gathering all statements in one SQL file")
+	final_sql_file= target_environment +"_refresh.sql"
+	revoke_sql=open("/tmp/revokefile.sql","r")
+	grant_sql=open("/tmp/grantfile_temp.sql","r")
+	owner_sql=open("/tmp/ownerfile_temp.sql","r")
+	sql_file=open(final_sql_file,"a+")
+	sql_file.write("set search_path to " + schemaname + ';')
+
+	sql_file.write("--------------------REVOKE STATEMENTS---------------------\n\n")
+	for line in revoke_sql:
+		sql_file.writelines(line)
+
+	sql_file.write("\n\n--------------------GRANT STATEMENTS---------------------\n\n")
+	for line in grant_sql:
+		sql_file.writelines(line)
+		
+	sql_file.write("\n\n--------------------OWNER STATEMENTS---------------------\n\n")
+	for line in owner_sql:
+    		sql_file.writelines(line)	
+	
+	revoke_sql.close()
+	grant_sql.close()
+	owner_sql.close()
+	
+	logging.info("Deleting temporary files")
+	for file in temp_files:
+    		if os.path.isfile(file):
+        		os.remove(file)
 
 if __name__ == '__main__':
 	if args.type == 'pg_dump':
@@ -99,6 +194,8 @@ if __name__ == '__main__':
 	else:
 		gpcrondump_backup()
 		if get_backupkey() > start_timestamp:
-			sys.exit("Backup is failed. Please check backup logs /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))
+			logging.error("Backup is failed. Please check backup log /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))
+			sys.exit()
 		else:
 			gpdbrestore_restore()
+			

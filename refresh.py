@@ -59,28 +59,31 @@ def pg_dump_restore():
 
 def gpcrondump_backup():
     	backup_command="gpcrondump -x %s -s %s -h -a 2> dev/null" %(source_db,source_schema)
-    	p = os.popen(backup_command)
-
+    	p = os.popen(backup_command)	
+	
 def gpdbrestore_restore():
+	target_schema_check()
+   	restore_command="gpdbrestore -t %s --noanalyze --redirect %s -a 2> /dev/null" %(get_backupkey(),target_db)
+    	os.popen(restore_command)
+
+def target_schema_check():
 	logging.info("Checking if %s schema already exists in %s database" %(target_schema,target_db))
 	con = DB(dbname=target_db, host=target_host, port=target_port, user=target_user)
 	schema = con.query("SELECT nspname FROM pg_namespace where nspname = %s" %target_schema)
-	row = schema.dictresult()
+	row = schema.getresult()
 	if row:
 		logging.info("%s schema already exists in %s database" %(target_schema,target_db))
 		logging.info("Renaming %s schema to %s_hold" %(target_schema,target_schema))
 		con.query("ALTER SCHEMA %s RENAME to %s_hold" %(target_schema,target_schema))
 		schema = con.query("SELECT nspname FROM pg_namespace where nspname = %s" %target_schema)
-		row = schema.dictresult()
+		row = schema.getresult()
 		if row:
 			logging.info("Failed to rename %s schema to %s_hold" %(target_scheme,target_schema))
 		else:
 			logging.info("%s schema renamed successfully to %s_hold" %(target_scheme,target_schema))
 	else:
-		logging.info("%s schema doesn't exists in %s. Good to restore backup" %(target_schema,target_db)
-   	restore_command="gpdbrestore -t %s --noanalyze --redirect %s -a 2> /dev/null" %(get_backupkey(),target_db)
-    	os.popen(restore_command)
-
+		logging.info("%s schema doesn't exists in %s. Good to restore backup" %(target_schema,target_db))
+		
 def get_backupkey():
     	con = DB(dbname=source_db, host=source_host, port=source_port, user=source_user)
     	opts = backup_command[11:]

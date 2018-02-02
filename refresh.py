@@ -68,8 +68,8 @@ def gpdbrestore_restore():
 	schemas = ''
 	for num,line in enumerate(source_schemafile, 1):
 		schema = line.rstrip('\n')
-		schemas = schemas + schema + ','
-	
+		schemas = schemas + "'" + schema + "'" + ","
+		schemas = schemas.rstrip(',')
 	con = DB(dbname=target_db, host=target_host, port=target_port, user=target_user)
 	schema_count = con.query("SELECT count(nspname) FROM pg_namespace where nspname in ("%s" %schemas))
 

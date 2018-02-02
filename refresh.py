@@ -1,5 +1,6 @@
 import sys
 import os
+import datetime
 import logging
 import ConfigParser
 import argparse
@@ -34,40 +35,45 @@ target_user = config.get("target","user")
 target_port = config.get("target","port")
 target_schema = config.get("target","schema")
 
+# Getting timestamp of script start, Later this timestamp will be used to compare with dump_key from gpcrondump_history. 
+now = datetime.datetime.now()
+start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
+
+logging.info("Script Start Timestamp = %d" %start_timestamp)
 logging.info("============Backup Details============")
-logging.info("Source Database = %s" %source_db)
-logging.info("Source Schema   = %s" %source_schema)
+logging.info("Source Database        = %s" %source_db)
+logging.info("Source Schema          = %s" %source_schema)
 logging.info("============Restore Details============")
 logging.info("Target Database = %s" %target_db)
 logging.info("Target Schema   = %s" %target_schema)
 
-
-
 backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)
 
 def pg_dump_backup():
-    backup_command="pg_dump -d %s -h %s -U %s -n %s > %s" %(source_db,source_host,source_user,source_schema,backup_file)
-    os.popen(backup_command)
+	backup_command="pg_dump -d %s -h %s -U %s -n %s > %s" %(source_db,source_host,source_user,source_schema,backup_file)
+    	os.popen(backup_command)
 
 def pg_dump_restore():
-    restore_command="psql -d %s -h %s -U %s < %s" %(target_db,target_host,target_user,backup_file)
-    os.popen(restore_command)
+    	restore_command="psql -d %s -h %s -U %s < %s" %(target_db,target_host,target_user,backup_file)
+    	os.popen(restore_command)
 
 def gpcrondump_backup():
-    backup_command="gpcrondump -x %s -s %s -h -a 2> dev/null" %(source_db,source_schema)
-    p = os.popen(backup_command)
+    	backup_command="gpcrondump -x %s -s %s -h -a 2> dev/null" %(source_db,source_schema)
+    	p = os.popen(backup_command)
 
 def gpdbrestore_restore():
-    restore_command="gpdbrestore -t %s --noanalyze --redirect %s -a 2> /dev/null" %(get_backupkey(),target_db)
-    os.popen(restore_command)
+	con = DB(dbname=target_db, host=target_host, port=target_port, user=target_user)
+	
+   	restore_command="gpdbrestore -t %s --noanalyze --redirect %s -a 2> /dev/null" %(get_backupkey(),target_db)
+    	os.popen(restore_command)
 
 def get_backupkey():
-    con = DB()
-    opts = backup_command[11:]
-    key = con.query("SELECT dump_key FROM gpcrondump_history where options = '%s' AND exit_text = 'COMPLETED' ORDER BY dump_key desc limit 1" %opts)
-    row = key.dictresult()
-    dump_key = row[0]["dump_key"]
-    return int(dump_key)
+    	con = DB(dbname=source_db, host=source_host, port=source_port, user=source_user)
+    	opts = backup_command[11:]
+    	key = con.query("SELECT dump_key FROM gpcrondump_history where options = '%s' AND exit_text = 'COMPLETED' ORDER BY dump_key desc limit 1" %opts)
+    	row = key.dictresult()
+    	dump_key = row[0]["dump_key"]
+    	return int(dump_key)
 
 if __name__ == '__main__':
 	if args.type == 'pg_dump':
@@ -75,10 +81,7 @@ if __name__ == '__main__':
 		pg_dump_restore()
 	else:
 		gpcrondump_backup()
-		gpdbrestore_restore()
-
-
-# Backup Check
-# timestamp = now.strftime("%Y%m%d%H%M%S")
-# if timestamp > dump_key
-# Backup is failed
+		if get_backupkey() > start_timestamp:
+			sys.exit("Backup is failed. Please check backup logs /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))
+		else:
+			gpdbrestore_restore()

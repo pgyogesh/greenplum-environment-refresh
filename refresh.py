@@ -207,7 +207,7 @@ if __name__ == '__main__':
 		pg_dump_restore()
 	else:
 		gpcrondump_backup()
-		if get_backupkey() > start_timestamp:
+		if get_backupkey() > int(start_timestamp):
 			logging.error("Backup is failed. Please check backup log /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))
 			sys.exit()
 		else:

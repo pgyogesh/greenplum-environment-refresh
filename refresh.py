@@ -197,9 +197,9 @@ if __name__ == '__main__':
     now = datetime.datetime.now()
     start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
     if args.type == 'pg_dump':
-		pg_dump_backup()
-		pg_dump_restore()
-	else:
+        pg_dump_backup()
+        pg_dump_restore()
+    else:
 		backup_command="gpcrondump -x %s %s-h -a 2> /dev/null" %(source_db,schema_list_for_cmd('-s'))
         time.sleep(1)
     	os.popen(backup_command)

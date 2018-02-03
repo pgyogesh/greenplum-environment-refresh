@@ -71,7 +71,7 @@ def gpdbrestore_restore():
 		schemas = schemas + "'" + schema + "'" + ","
 		vschemas = schemas.rstrip(',')
 	con = DB(dbname=target_db, host=target_host, port=target_port, user=target_user)
-	schema_count = con.query("SELECT count(nspname) FROM pg_namespace where nspname in ("%s" %vschemas))
+	schema_count = con.query("SELECT count(nspname) FROM pg_namespace where nspname in ('%s' %vschemas)")
         count = schema_count.getresult()[0]
         if count != num:
                 logging.error("Restore is failed. %s schema restored out of %s schema" %(count,num))

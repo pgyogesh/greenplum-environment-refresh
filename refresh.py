@@ -36,14 +36,13 @@ target_port = config.get("target","port")
 target_schemafile = config.get("target","schema-file")
 target_environment = config.get("target","environment")
 
-# Getting timestamp of script start, Later this timestamp will be used to compare with dump_key from gpcrondump_history. 
+# Getting timestamp of script start, Later this timestamp will be used to compare with dump_key from gpcrondump_history.
 now = datetime.datetime.now()
 start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
 
 logging.info("Script Start Timestamp = %d" %start_timestamp)
 logging.info("============Backup Details============")
 logging.info("Source Database        = %s" %source_db)
-logging.info("Source Schema          = ")
 logging.info("============Restore Details============")
 logging.info("Target Database = %s" %target_db)
 
@@ -58,9 +57,17 @@ def pg_dump_restore():
     	os.popen(restore_command)
 
 def gpcrondump_backup():
-    	backup_command="gpcrondump -x %s -s %s -h -a 2> dev/null" %(source_db,source_schema)
-    	p = os.popen(backup_command)	
-	
+    	backup_command="gpcrondump -x %s %s -h -a 2> dev/null" %(source_db,schema_list_for_cmd('-s'))
+    	p = os.popen(backup_command)
+
+
+def schema_list_for_cmd(option):
+    schemas =
+	for num,line in enumerate(source_schemafile, 1):
+		schema = line.rstrip('\n')
+		schemas = schemas + option + schema
+    return schemas
+
 def gpdbrestore_restore():
 	target_schema_check()
    	restore_command="gpdbrestore -t %s --noanalyze --redirect %s -a 2> /dev/null" %(get_backupkey(),target_db)
@@ -69,9 +76,9 @@ def gpdbrestore_restore():
 	for num,line in enumerate(source_schemafile, 1):
 		schema = line.rstrip('\n')
 		schemas = schemas + "'" + schema + "'" + ","
-		vschemas = schemas.rstrip(',')
+	schemas = schemas.rstrip(',')
 	con = DB(dbname=target_db, host=target_host, port=target_port, user=target_user)
-	schema_count = con.query("SELECT count(nspname) FROM pg_namespace where nspname in ('%s' %vschemas)")
+	schema_count = con.query("SELECT count(nspname) FROM pg_namespace where nspname in ('%s' %schemas)")
         count = schema_count.getresult()[0]
         if count != num:
                 logging.error("Restore is failed. %s schema restored out of %s schema" %(count,num))
@@ -95,7 +102,7 @@ def target_schema_check():
 	else:
 		logging.info("%s schema doesn't exists in %s. Good to restore backup" %(target_schema,target_db))
 	con.close()
-	
+
 def get_backupkey():
     	con = DB(dbname=source_db, host=source_host, port=source_port, user=source_user)
     	opts = backup_command[11:]
@@ -108,11 +115,11 @@ def get_backupkey():
 def permission_switch(schemaname):
 	temp_files = ['/tmp/grantfile.sql','/tmp/grantfile_temp.sql','/tmp/revokefile.sql','/tmp/revokefile_temp.sql','/tmp/ownerfile.sql','/tmp/ownerfile_temp.sql']
 	logging.info("Checking if temp files already exists")
-	
+
 	for file in temp_files:
 		if os.path.isfile(file):
 			os.remove(file)
-	
+
 	sql_file='/tmp/%s_%s.sql' %(schemaname,now.strftime("%Y%m%d"))
 	schema_backup_command = "pg_dump %s -n %s > %s" %(target_db,schemaname,sql_file)
 	os.popen(schema_backup_command)
@@ -125,7 +132,7 @@ def permission_switch(schemaname):
 			v_grantfile.writelines(g_line)
 			v_grantfile.write('\n')
 	v_grantfile.close()
-	
+
 	logging.info("Fetching 'ALTER TABLE .. OWNER TO' SQL statement from " + sql_file)
 	v_ownerfile=open("/tmp/ownerfile.sql","a")
 	for o_line in v_sqlfile:
@@ -134,7 +141,7 @@ def permission_switch(schemaname):
 			v_ownerfile.writelines(o_line)
 			v_ownerfile.write('\n')
 	v_ownerfile.close()
-	
+
 	logging.info("Generating revoke statements from " + sql_file)
 	v_grantfile=open("/tmp/grantfile.sql","r")
 	v_revokefile=open("/tmp/revokefile.sql","a")
@@ -144,7 +151,7 @@ def permission_switch(schemaname):
 		v_revokefile.writelines(from_line)
 	v_revokefile.close()
 	v_grantfile.close()
-	
+
 	logging.info("Creating new GRANT statement's file with "+ target_environment + " roles")
 	v_grantfile=open("/tmp/grantfile.sql","r")
 	v_grantfile_temp=open("/tmp/grantfile_temp.sql","a")
@@ -153,7 +160,7 @@ def permission_switch(schemaname):
 		v_grantfile_temp.writelines(new_role_line)
 	v_grantfile.close()
 	v_grantfile_temp.close()
-	
+
 	logging.info("Creating new 'ALTER TABLE .. OWNER TO' statement file with "+ target_environment + " roles")
 	v_ownerfile=open("/tmp/ownerfile.sql","r")
 	v_ownerfile_temp=open("/tmp/ownerfile_temp.sql","a")
@@ -177,15 +184,15 @@ def permission_switch(schemaname):
 	sql_file.write("\n\n--------------------GRANT STATEMENTS---------------------\n\n")
 	for line in grant_sql:
 		sql_file.writelines(line)
-		
+
 	sql_file.write("\n\n--------------------OWNER STATEMENTS---------------------\n\n")
 	for line in owner_sql:
-    		sql_file.writelines(line)	
-	
+    		sql_file.writelines(line)
+
 	revoke_sql.close()
 	grant_sql.close()
 	owner_sql.close()
-	
+
 	logging.info("Deleting temporary files")
         logging.info("Running generated SQL file")
         run_permissions = "psql -d %s -f %s > /tmp/permissions.out" %(target_db,sql_file)

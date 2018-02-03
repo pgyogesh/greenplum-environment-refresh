@@ -45,9 +45,11 @@ logging.info("Target Database        = %s" %target_db)
 
 
 #backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)
+now = datetime.datetime.now()
+start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
+
 def get_starttime():
-    now = datetime.datetime.now()
-    start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
+    retun int(start_timestamp)
 
 def pg_dump_backup():
 	backup_command="pg_dump -d %s -h %s -U %s -n %s > %s" %(source_db,source_host,source_user,source_schema,backup_file)
@@ -197,6 +199,7 @@ def permission_switch(schemaname):
         		os.remove(file)
 
 if __name__ == '__main__':
+
     get_starttime()
     if args.type == 'pg_dump':
         pg_dump_backup()
@@ -205,9 +208,9 @@ if __name__ == '__main__':
         time.sleep(1)
         backup_command="gpcrondump -x %s %s-h -a 2> /dev/null" %(source_db,schema_list_for_cmd('-s'))
         os.popen(backup_command)
-        if get_backupkey() > int(start_timestamp):
-            print(dump_key)
-            print(start_timestamp)
+        if get_backupkey() > get_starttime():
+            print(get_backupkey())
+            print(get_starttime())
             logging.error("Backup is failed. Please check backup log /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))
             sys.exit()
         else:

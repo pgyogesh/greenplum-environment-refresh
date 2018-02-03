@@ -203,7 +203,7 @@ if __name__ == '__main__':
 		backup_command="gpcrondump -x %s %s-h -a 2> /dev/null" %(source_db,schema_list_for_cmd('-s'))
         time.sleep(1)
     	os.popen(backup_command)
-        if get_backupkey() > int(start_timestamp):
+        if get_backupkey() < int(start_timestamp):
             logging.error("Backup is failed. Please check backup log /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))
             sys.exit()
         else:

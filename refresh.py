@@ -110,8 +110,7 @@ def get_backupkey():
     row = key.dictresult()
     dump_key = row[0]["dump_key"]
 	return int(dump_key)
-    con.close()
-    
+
 def permission_switch(schemaname):
 	temp_files = ['/tmp/grantfile.sql','/tmp/grantfile_temp.sql','/tmp/revokefile.sql','/tmp/revokefile_temp.sql','/tmp/ownerfile.sql','/tmp/ownerfile_temp.sql']
 	logging.info("Checking if temp files already exists")

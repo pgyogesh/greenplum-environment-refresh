@@ -45,6 +45,9 @@ logging.info("Target Database        = %s" %target_db)
 
 
 #backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)
+def get_starttime():
+    now = datetime.datetime.now()
+    start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
 
 def pg_dump_backup():
 	backup_command="pg_dump -d %s -h %s -U %s -n %s > %s" %(source_db,source_host,source_user,source_schema,backup_file)
@@ -102,7 +105,6 @@ def get_backupkey():
     key = con.query("SELECT dump_key FROM gpcrondump_history where options = '%s' AND exit_text = 'COMPLETED' ORDER BY dump_key desc limit 1" %opts)
     row = key.dictresult()
     dump_key = row[0]["dump_key"]
-    return dump_key
 
 def permission_switch(schemaname):
 	temp_files = ['/tmp/grantfile.sql','/tmp/grantfile_temp.sql','/tmp/revokefile.sql','/tmp/revokefile_temp.sql','/tmp/ownerfile.sql','/tmp/ownerfile_temp.sql']
@@ -194,6 +196,7 @@ def permission_switch(schemaname):
         		os.remove(file)
 
 if __name__ == '__main__':
+    get_starttime()
     now = datetime.datetime.now()
     start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
     if args.type == 'pg_dump':
@@ -203,8 +206,9 @@ if __name__ == '__main__':
         time.sleep(1)
         backup_command="gpcrondump -x %s %s-h -a 2> /dev/null" %(source_db,schema_list_for_cmd('-s'))
         os.popen(backup_command)
-        if get_backupkey() > int(start_timestamp):
-            print(get_backupkey())
+        get_backupkey()
+        if int(dump_key) > int(start_timestamp):
+            print(dump_key)
             print(start_timestamp)
             logging.error("Backup is failed. Please check backup log /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))
             sys.exit()

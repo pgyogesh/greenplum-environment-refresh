@@ -43,7 +43,7 @@ start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
 logging.info("Script Start Timestamp = %d" %start_timestamp)
 logging.info("============Backup Details============")
 logging.info("Source Database        = %s" %source_db)
-logging.info("Source Schema          = )
+logging.info("Source Schema          = ")
 logging.info("============Restore Details============")
 logging.info("Target Database = %s" %target_db)
 

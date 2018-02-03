@@ -49,7 +49,7 @@ now = datetime.datetime.now()
 start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
 
 def get_starttime():
-    retun int(start_timestamp)
+    return int(start_timestamp)
 
 def pg_dump_backup():
 	backup_command="pg_dump -d %s -h %s -U %s -n %s > %s" %(source_db,source_host,source_user,source_schema,backup_file)

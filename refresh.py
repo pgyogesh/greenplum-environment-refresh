@@ -101,7 +101,7 @@ def target_schema_check():
 
 def get_backupkey():
     con = DB(dbname=source_db, host=source_host, user=source_user)
-    opts = backup_command[11:-13]
+    opts = backup_command[11:-12]
     print(opts)
     key = con.query("SELECT dump_key FROM gpcrondump_history where options = '%s' AND exit_text = 'COMPLETED' ORDER BY dump_key desc limit 1" %opts)
     row = key.dictresult()

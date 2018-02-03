@@ -205,7 +205,7 @@ if __name__ == '__main__':
     	p = os.popen(backup_command)
         if get_backupkey() > int(start_timestamp):
             logging.error("Backup is failed. Please check backup log /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))
-			sys.exit()
+            sys.exit()
 		else:
 			gpdbrestore_restore()
 			permission_switch()

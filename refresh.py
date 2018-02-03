@@ -196,7 +196,7 @@ def permission_switch(schemaname):
 if __name__ == '__main__':
     now = datetime.datetime.now()
     start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
-	if args.type == 'pg_dump':
+    if args.type == 'pg_dump':
 		pg_dump_backup()
 		pg_dump_restore()
 	else:

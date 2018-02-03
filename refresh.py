@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 import datetime
 import logging
 import ConfigParser
@@ -41,9 +42,7 @@ now = datetime.datetime.now()
 start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
 
 logging.info("Script Start Timestamp = %d" %start_timestamp)
-logging.info("------------Backup Details------------")
 logging.info("Source Database        = %s" %source_db)
-logging.info("------------Restore Details-----------")
 logging.info("Target Database        = %s" %target_db)
 
 
@@ -202,6 +201,7 @@ if __name__ == '__main__':
 		pg_dump_restore()
 	else:
 		backup_command="gpcrondump -x %s %s-h -a 2> /dev/null" %(source_db,schema_list_for_cmd('-s'))
+        time.sleep(1)
     	os.popen(backup_command)
         if get_backupkey() > int(start_timestamp):
             logging.error("Backup is failed. Please check backup log /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))

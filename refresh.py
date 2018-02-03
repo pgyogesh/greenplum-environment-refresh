@@ -41,10 +41,10 @@ now = datetime.datetime.now()
 start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
 
 logging.info("Script Start Timestamp = %d" %start_timestamp)
-logging.info("============Backup Details============")
+logging.info("------------Backup Details------------")
 logging.info("Source Database        = %s" %source_db)
-logging.info("============Restore Details============")
-logging.info("Target Database = %s" %target_db)
+logging.info("------------Restore Details-----------")
+logging.info("Target Database        = %s" %target_db)
 
 
 #backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)

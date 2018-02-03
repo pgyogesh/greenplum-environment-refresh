@@ -38,8 +38,6 @@ target_schemafile = config.get("target","schema-file")
 target_environment = config.get("target","environment")
 
 # Getting timestamp of script start, Later this timestamp will be used to compare with dump_key from gpcrondump_history.
-now = datetime.datetime.now()
-start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
 
 logging.info("Script Start Timestamp = %d" %start_timestamp)
 logging.info("Source Database        = %s" %source_db)
@@ -196,6 +194,8 @@ def permission_switch(schemaname):
         		os.remove(file)
 
 if __name__ == '__main__':
+    now = datetime.datetime.now()
+    start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
 	if args.type == 'pg_dump':
 		pg_dump_backup()
 		pg_dump_restore()

@@ -62,7 +62,7 @@ def gpcrondump_backup():
 
 
 def schema_list_for_cmd(option):
-    schemas =
+    schemas = ''
 	for num,line in enumerate(source_schemafile, 1):
 		schema = line.rstrip('\n')
 		schemas = schemas + option + schema

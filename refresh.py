@@ -83,7 +83,7 @@ def gpdbrestore_restore():
         else:
                 logging.info("Restore is completed successfully")
 def target_schema_check():
-	logging.info("Checking if %s schema already exists in %s database" %(schema_list_for_cmd(' '),target_db))
+	logging.info("Checking if %s schema already exists in %s database" %(schema_list_for_cmd(','),target_db))
 	con = DB(dbname=target_db, host=target_host, port=target_port, user=target_user)
 	schema = con.query("SELECT nspname FROM pg_namespace where nspname = %s" %target_schema)
 	row = schema.getresult()

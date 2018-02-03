@@ -46,7 +46,8 @@ logging.info("Source Database        = %s" %source_db)
 logging.info("============Restore Details============")
 logging.info("Target Database = %s" %target_db)
 
-backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)
+
+#backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)
 
 def pg_dump_backup():
 	backup_command="pg_dump -d %s -h %s -U %s -n %s > %s" %(source_db,source_host,source_user,source_schema,backup_file)
@@ -55,11 +56,6 @@ def pg_dump_backup():
 def pg_dump_restore():
     	restore_command="psql -d %s -h %s -U %s < %s" %(target_db,target_host,target_user,backup_file)
     	os.popen(restore_command)
-
-def gpcrondump_backup():
-    	backup_command="gpcrondump -x %s %s -h -a 2> dev/null" %(source_db,schema_list_for_cmd('-s'))
-    	p = os.popen(backup_command)
-
 
 def schema_list_for_cmd(option):
     schemas = ''
@@ -205,7 +201,8 @@ if __name__ == '__main__':
 		pg_dump_backup()
 		pg_dump_restore()
 	else:
-		gpcrondump_backup()
+		backup_command="gpcrondump -x %s %s -h -a 2> dev/null" %(source_db,schema_list_for_cmd('-s'))
+    	p = os.popen(backup_command)
 		if get_backupkey() > int(start_timestamp):
 			logging.error("Backup is failed. Please check backup log /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))
 			sys.exit()

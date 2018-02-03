@@ -104,14 +104,14 @@ def target_schema_check():
 	con.close()
 
 def get_backupkey():
-    	con = DB(dbname=source_db, host=source_host, port=source_port, user=source_user)
-    	opts = backup_command[11:]
-    	key = con.query("SELECT dump_key FROM gpcrondump_history where options = '%s' AND exit_text = 'COMPLETED' ORDER BY dump_key desc limit 1" %opts)
-    	row = key.dictresult()
-    	dump_key = row[0]["dump_key"]
-	con.close()
-    return int(dump_key)
-
+	con = DB(dbname=source_db, host=source_host, port=source_port, user=source_user)
+    opts = backup_command[11:]
+    key = con.query("SELECT dump_key FROM gpcrondump_history where options = '%s' AND exit_text = 'COMPLETED' ORDER BY dump_key desc limit 1" %opts)
+    row = key.dictresult()
+    dump_key = row[0]["dump_key"]
+	return int(dump_key)
+    con.close()
+    
 def permission_switch(schemaname):
 	temp_files = ['/tmp/grantfile.sql','/tmp/grantfile_temp.sql','/tmp/revokefile.sql','/tmp/revokefile_temp.sql','/tmp/ownerfile.sql','/tmp/ownerfile_temp.sql']
 	logging.info("Checking if temp files already exists")

@@ -46,7 +46,7 @@ logging.info("Source Database        = %s" %source_db)
 logging.info("============Restore Details============")
 logging.info("Target Database = %s" %target_db)
 
-backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)
+#backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)
 
 def pg_dump_backup():
 	backup_command="pg_dump -d %s -h %s -U %s -n %s > %s" %(source_db,source_host,source_user,source_schema,backup_file)

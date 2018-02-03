@@ -72,7 +72,11 @@ def gpdbrestore_restore():
 		schemas = schemas.rstrip(',')
 	con = DB(dbname=target_db, host=target_host, port=target_port, user=target_user)
 	schema_count = con.query("SELECT count(nspname) FROM pg_namespace where nspname in ("%s" %schemas))
-
+        count = schema_count.getresult()[0]
+        if count != num:
+                logging.error("Restore is failed. %s schema restored out of %s schema" %(count,num))
+        else:
+                logging.info("Restore is completed successfully")
 def target_schema_check():
 	logging.info("Checking if %s schema already exists in %s database" %(target_schema,target_db))
 	con = DB(dbname=target_db, host=target_host, port=target_port, user=target_user)
@@ -183,6 +187,9 @@ def permission_switch(schemaname):
 	owner_sql.close()
 	
 	logging.info("Deleting temporary files")
+        logging.info("Running generated SQL file")
+        run_permissions = "psql -d %s -f %s > /tmp/permissions.out" %(target_db,sql_file)
+        os.popen(run_permissions)
 	for file in temp_files:
     		if os.path.isfile(file):
         		os.remove(file)
@@ -198,4 +205,4 @@ if __name__ == '__main__':
 			sys.exit()
 		else:
 			gpdbrestore_restore()
-			
+			permission_switch()

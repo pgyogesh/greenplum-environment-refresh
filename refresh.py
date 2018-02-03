@@ -59,9 +59,9 @@ def pg_dump_restore():
 
 def schema_list_for_cmd(option):
     schemas = ''
-    for num,line in enumerate(source_schemafile, 1):
+    for num,line in enumerate(open(source_schemafile,'r'), 1):
 		schema = line.rstrip('\n')
-		schemas = schemas + option + schema
+		schemas = schemas + option + ' ' + schema + ' '
     return schemas
 
 def gpdbrestore_restore():

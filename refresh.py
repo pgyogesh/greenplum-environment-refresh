@@ -39,7 +39,7 @@ target_environment = config.get("target","environment")
 
 # Getting timestamp of script start, Later this timestamp will be used to compare with dump_key from gpcrondump_history.
 
-logging.info("Script Start Timestamp = %d" %start_timestamp)
+#logging.info("Script Start Timestamp = %d" %start_timestamp)
 logging.info("Source Database        = %s" %source_db)
 logging.info("Target Database        = %s" %target_db)
 

@@ -201,7 +201,7 @@ if __name__ == '__main__':
 		pg_dump_backup()
 		pg_dump_restore()
 	else:
-		backup_command="gpcrondump -x %s %s -h -a 2> dev/null" %(source_db,schema_list_for_cmd('-s'))
+		backup_command="gpcrondump -x %s %s -h -a 2> /dev/null" %(source_db,schema_list_for_cmd('-s'))
     	p = os.popen(backup_command)
         if get_backupkey() > int(start_timestamp):
             logging.error("Backup is failed. Please check backup log /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))

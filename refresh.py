@@ -97,6 +97,7 @@ def target_schema_check():
         query = "SELECT nspname FROM pg_namespace where nspname = \'%s\'" %schema
         get_schema = con.query(query)
         row = get_schema.getresult()
+        print(row)
         if row:
             logging.info("%s schema already exists in %s database" %(schema,target_db))
             logging.info("Renaming %s schema to %s_hold" %(schema,schema))

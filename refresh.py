@@ -66,7 +66,7 @@ def schema_list_for_cmd(option):
     for num,line in enumerate(schema_file, 1):
 		schema = line.rstrip('\n')
 		schemas = schemas + option + ' ' + schema + ' '
-    file.close()
+    schema_file.close()
     return schemas
 
 def gpdbrestore_restore():

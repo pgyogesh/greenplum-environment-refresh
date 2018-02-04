@@ -61,9 +61,12 @@ def pg_dump_restore():
 
 def schema_list_for_cmd(option):
     schemas = ''
-    for num,line in enumerate(open(source_schemafile,'r'), 1):
+    schema_file = open(source_schemafile,'r')
+    schema_file.seek(0)
+    for num,line in enumerate(schema_file, 1):
 		schema = line.rstrip('\n')
 		schemas = schemas + option + ' ' + schema + ' '
+    file.close()
     return schemas
 
 def gpdbrestore_restore():
@@ -71,7 +74,9 @@ def gpdbrestore_restore():
    	restore_command="gpdbrestore -t %s --noanalyze --redirect %s -a 2> /dev/null" %(get_backupkey(),target_db)
     	os.popen(restore_command)
 	schemas = ''
-	for num,line in enumerate(source_schemafile, 1):
+    schema_file = open(source_schemafile,'r')
+    schema_file.seek(0)
+	for num,line in enumerate(schema_file, 1):
 		schema = line.rstrip('\n')
 		schemas = schemas + "'" + schema + "'" + ","
 	schemas = schemas.rstrip(',')
@@ -82,10 +87,13 @@ def gpdbrestore_restore():
                 logging.error("Restore is failed. %s schema restored out of %s schema" %(count,num))
         else:
                 logging.info("Restore is completed successfully")
+
 def target_schema_check():
-	logging.info("Checking if %s schema already exists in %s database" %(schema_list_for_cmd(','),target_db))
+    schema_list = schema_list_for_cmd(',')
+    print(schema_list)
+	logging.info("Checking if %s schema exists in %s database" %(schema_list,target_db))
 	con = DB(dbname=target_db)
-	schema = con.query("SELECT nspname FROM pg_namespace where nspname = %s" %target_schema)
+	schema = con.query("SELECT nspname FROM pg_namespace where nspname in (%s)" %schemas)
 	row = schema.getresult()
 	if row:
 		logging.info("%s schema already exists in %s database" %(target_schema,target_db))

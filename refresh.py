@@ -94,7 +94,8 @@ def target_schema_check():
     schema_list.seek(0)
     for schema in schema_list:
         logging.info("Checking if %s schema exists in %s database" %(schema,target_db))
-        schema = con.query("SELECT nspname FROM pg_namespace where nspname = '%s'" %schema)
+        query = "SELECT nspname FROM pg_namespace where nspname = \'%s\'" %schema
+        schema = con.query(query)
         row = schema.getresult()
         if row:
             logging.info("%s schema already exists in %s database" %(schema,target_db))

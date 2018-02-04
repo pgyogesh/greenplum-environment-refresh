@@ -91,6 +91,7 @@ def gpdbrestore_restore():
 def target_schema_check():
     schema_list = schema_list_for_cmd(',')
     schema_list = schema_list[1:]
+    print(schema_list)
     logging.info("Checking if %s schema exists in %s database" %(schema_list,target_db))
     con = DB(dbname=target_db)
     schema = con.query("SELECT nspname FROM pg_namespace where nspname in (%s)" %schema_list)

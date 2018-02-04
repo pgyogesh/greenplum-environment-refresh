@@ -73,20 +73,20 @@ def gpdbrestore_restore():
 	target_schema_check()
    	restore_command="gpdbrestore -t %s --noanalyze --redirect %s -a 2> /dev/null" %(get_backupkey(),target_db)
     	os.popen(restore_command)
-	schemas = ''
-    schema_file = open(source_schemafile,'r')
-    schema_file.seek(0)
-	for num,line in enumerate(schema_file, 1):
-		schema = line.rstrip('\n')
-		schemas = schemas + "'" + schema + "'" + ","
-	schemas = schemas.rstrip(',')
-	con = DB(dbname=target_db, host=target_host, port=target_port, user=target_user)
-	schema_count = con.query("SELECT count(nspname) FROM pg_namespace where nspname in ('%s' %schemas)")
-        count = schema_count.getresult()[0]
-        if count != num:
-                logging.error("Restore is failed. %s schema restored out of %s schema" %(count,num))
-        else:
-                logging.info("Restore is completed successfully")
+	# schemas = ''
+    # schema_file = open(source_schemafile,'r')
+    # schema_file.seek(0)
+	# for num,line in enumerate(schema_file, 1):
+	# 	schema = line.rstrip('\n')
+	# 	schemas = schemas + "'" + schema + "'" + ","
+	# schemas = schemas.rstrip(',')
+	# con = DB(dbname=target_db, host=target_host, port=target_port, user=target_user)
+	# schema_count = con.query("SELECT count(nspname) FROM pg_namespace where nspname in ('%s' %schemas)")
+    #     count = schema_count.getresult()[0]
+    #     if count != num:
+    #             logging.error("Restore is failed. %s schema restored out of %s schema" %(count,num))
+    #     else:
+    #             logging.info("Restore is completed successfully")
 
 def target_schema_check():
     schema_list = schema_list_for_cmd(',')

@@ -98,16 +98,16 @@ def target_schema_check():
     if row:
         logging.info("%s schema already exists in %s database" %(target_schema,target_db))
         logging.info("Renaming %s schema to %s_hold" %(target_schema,target_schema))
-		con.query("ALTER SCHEMA %s RENAME to %s_hold" %(target_schema,target_schema))
-		schema = con.query("SELECT nspname FROM pg_namespace where nspname = %s" %target_schema)
-		row = schema.getresult()
-		if row:
-			logging.info("Failed to rename %s schema to %s_hold" %(target_scheme,target_schema))
-		else:
-			logging.info("%s schema renamed successfully to %s_hold" %(target_scheme,target_schema))
-	else:
-		logging.info("%s schema doesn't exists in %s. Good to restore backup" %(target_schema,target_db))
-	con.close()
+        con.query("ALTER SCHEMA %s RENAME to %s_hold" %(target_schema,target_schema))
+        schema = con.query("SELECT nspname FROM pg_namespace where nspname = %s" %target_schema)
+        row = schema.getresult()
+        if row:
+            logging.info("Failed to rename %s schema to %s_hold" %(target_scheme,target_schema))
+        else:
+            logging.info("%s schema renamed successfully to %s_hold" %(target_scheme,target_schema))
+    else:
+        logging.info("%s schema doesn't exists in %s. Good to restore backup" %(target_schema,target_db))
+    con.close()
 
 def get_backupkey():
     con = DB(dbname=source_db, host=source_host, user=source_user)

@@ -126,7 +126,7 @@ def get_backupkey():
     return int(dump_key)
 
 def permission_switch(schemaname):
-    logging.info("Switching roles from %s to %s" %(source_environment, target_environment))
+    logging.info("Switching roles from %s to %s for %s schema" %(source_environment, target_environment,schemaname))
     temp_files = ['/tmp/grantfile.sql','/tmp/grantfile_temp.sql','/tmp/revokefile.sql','/tmp/revokefile_temp.sql','/tmp/ownerfile.sql','/tmp/ownerfile_temp.sql']
     logging.info("Checking if temp files already exists")
 

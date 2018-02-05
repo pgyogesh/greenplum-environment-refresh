@@ -181,7 +181,7 @@ def permission_switch(schemaname):
 	v_ownerfile_temp=open("/tmp/ownerfile_temp.sql","a")
 	for o_line in v_ownerfile:
 		new_role_line = o_line.replace('_' + source_environment + '_', '_' + target_environment + '_')
-		v_ownerfile_temp.writelines(new_role_line)
+        v_ownerfile_temp.writelines(new_role_line)
     v_ownerfile.close()
     v_ownerfile_temp.close()
     final_sql_file= '/tmp/' + target_environment + '_' + schema + "_refresh_%s.sql" %now.strftime("%Y%m%d")

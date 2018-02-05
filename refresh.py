@@ -184,7 +184,7 @@ def permission_switch(schemaname):
 		v_ownerfile_temp.writelines(new_role_line)
 	v_ownerfile.close()
 	v_ownerfile_temp.close()
-	final_sql_file= '/tmp/' + target_environment + '_' + schema + "_refresh_%s.sql" %now.strftime("%Y%m%d")
+    final_sql_file= '/tmp/' + target_environment + '_' + schema + "_refresh_%s.sql" %now.strftime("%Y%m%d")
     logging.info("Gathering all statements in one SQL file: %s" %final_sql_file)
 	revoke_sql=open("/tmp/revokefile.sql","r")
 	grant_sql=open("/tmp/grantfile_temp.sql","r")

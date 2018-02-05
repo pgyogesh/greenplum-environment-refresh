@@ -134,7 +134,7 @@ def permission_switch(schemaname):
             os.remove(file)
 
     sql_file='/tmp/%s_%s.sql' %(schemaname,now.strftime("%Y%m%d"))
-    logging.info("Taking schema only backup from target database for %s schemas in %s" %(schemaname,sql_file)
+    logging.info("Taking schema only backup from target database for %s schemas in %s" %(schemaname,sql_file))
     schema_backup_command = "pg_dump %s -n %s > %s" %(target_db,schemaname,sql_file)
     os.popen(schema_backup_command)
     v_sqlfile=open(sql_file,'r')
@@ -225,8 +225,6 @@ if __name__ == '__main__':
         backup_command="gpcrondump -x %s %s-h -a 2> /dev/null" %(source_db,schema_list_for_cmd('-s'))
         os.popen(backup_command)
         if get_backupkey() < get_starttime():
-            print(get_backupkey())
-            print(get_starttime())
             logging.error("Backup is failed. Please check backup log /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))
             sys.exit()
         else:

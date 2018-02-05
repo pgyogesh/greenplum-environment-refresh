@@ -1,3 +1,5 @@
+[~/git/greenplum-environment-refresh] [0]
+$ python refresh.py -t gpcrondump
 2018-02-01 21:12:14,832:INFO:Getting source database Information
 2018-02-01 21:12:14,832:INFO:Getting target database Information
 2018-02-01 21:12:14,832:INFO:Source Database        = icprod

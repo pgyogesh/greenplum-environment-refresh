@@ -165,8 +165,7 @@ def permission_switch(schemaname):
 		from_line = revoke_line.replace(" TO ", " FROM ")
 		v_revokefile.writelines(from_line)
 	v_revokefile.close()
-	v_grantfile.close()
-
+    v_grantfile.close()
     logging.info("Creating new GRANT statement's file with "+ target_environment + " roles")
     v_grantfile=open("/tmp/grantfile.sql","r")
     v_grantfile_temp=open("/tmp/grantfile_temp.sql","a")

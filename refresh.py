@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 import time
 import datetime
 import logging
@@ -108,11 +109,11 @@ def target_schema_check():
             nsp = con.query("SELECT nspname FROM pg_namespace where nspname = \'%s\'" %schema)
             row = nsp.getresult()
             if row:
-                logging.info("Failed to rename %s schema to %s_hold" %(schema,schema))
+                logging.info("Failed to rename %s schema to %s_hold_%s" %(schema,schema,date))
                 logging.info("Please rename the schemas and run restore manually using timestamp: %s" %get_backupkey())
                 sys.exit()
             else:
-                logging.info("%s schema renamed successfully to %s_hold" %(schema,schema))
+                logging.info("%s schema renamed successfully to %s_hold_%s" %(schema,schema,date))
         else:
             logging.info("%s schema doesn't exists in %s. Good to restore backup" %(schema,target_db))
     schema_list.close()

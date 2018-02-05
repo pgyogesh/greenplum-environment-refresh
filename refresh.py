@@ -93,6 +93,7 @@ def target_schema_check():
     schema_list = open(source_schemafile,'r')
     schema_list.seek(0)
     for schema in schema_list:
+	date = now.strftime("%Y%m%d")
         logging.info("Checking if %s schema exists in %s database" %(schema,target_db))
         query = "SELECT nspname FROM pg_namespace where nspname = \'%s\'" %schema
         get_schema = con.query(query)
@@ -100,12 +101,13 @@ def target_schema_check():
         print(row)
         if row:
             logging.info("%s schema already exists in %s database" %(schema,target_db))
-            logging.info("Renaming %s schema to %s_hold" %(schema,schema))
-            con.query("ALTER SCHEMA %s RENAME to %s_hold" %(schema,schema))
+            logging.info("Renaming %s schema to %s_hold_%s" %(schema,schema,date))
+            con.query("ALTER SCHEMA %s RENAME to %s_hold_%s" %(schema,schema,date))
             schema = con.query("SELECT nspname FROM pg_namespace where nspname = %s" %schema)
             row = schema.getresult()
             if row:
                 logging.info("Failed to rename %s schema to %s_hold" %(schema,schema))
+		logging.info("Please rename the schemas and run restore manually using timestamp: %s" %get_backupkey()
                 sys.exit()
             else:
                 logging.info("%s schema renamed successfully to %s_hold" %(schema,schema))

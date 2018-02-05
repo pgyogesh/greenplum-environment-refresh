@@ -213,8 +213,8 @@ def permission_switch(schemaname):
         if os.path.isfile(file):
             os.remove(file)
     logging.info("Environment refresh from %s to %s completed" %(source_environment,target_environment))
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     get_starttime()
     if args.type == 'pg_dump':
         pg_dump_backup()
@@ -229,6 +229,7 @@ if __name__ == '__main__':
             logging.error("Backup is failed. Please check backup log /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))
             sys.exit()
         else:
+            logging.info("Backup completed successfully")
             gpdbrestore_restore()
             file = open(source_schemafile,'r')
             for schema in file:

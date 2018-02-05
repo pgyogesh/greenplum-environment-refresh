@@ -105,7 +105,7 @@ def target_schema_check():
             logging.info("%s schema already exists in %s database" %(schema,target_db))
             logging.info("Renaming %s schema to %s_hold_%s" %(schema,schema,date))
             con.query("ALTER SCHEMA %s RENAME to %s_hold_%s" %(schema,schema,date))
-            schema = con.query("SELECT nspname FROM pg_namespace where nspname = %s" %schema)
+            schema = con.query("SELECT nspname FROM pg_namespace where nspname = \'%s\'" %schema)
             row = schema.getresult()
             if row:
                 logging.info("Failed to rename %s schema to %s_hold" %(schema,schema))

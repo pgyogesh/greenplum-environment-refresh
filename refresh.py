@@ -205,7 +205,7 @@ def permission_switch(schemaname):
     revoke_sql.close()
     grant_sql.close()
     owner_sql.close()
-    final_sql_file.close()
+    sql_file.close()
 
     logging.info("Deleting temporary files")
     logging.info("Running generated SQL file")

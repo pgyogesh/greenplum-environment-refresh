@@ -81,7 +81,7 @@ def gpdbrestore_restore():
         schema = line.rstrip('\n')
         con = DB(dbname=target_db)
         get_schema = con.query("SELECT nspname FROM pg_namespace where nspname = \'%s\'" %schema)
-        row = get_schema.get_result()
+        row = get_schema.getresult()
         if row:
             logging.info("Restore completed for %s schema" %schema)
         else:

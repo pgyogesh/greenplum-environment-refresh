@@ -93,7 +93,8 @@ def target_schema_check():
     schema_list = open(source_schemafile,'r')
     schema_list.seek(0)
     for schema in schema_list:
-	date = now.strftime("%Y%m%d")
+        schema = schema.rstrip('\n')
+	    date = now.strftime("%Y%m%d")
         logging.info("Checking if %s schema exists in %s database" %(schema,target_db))
         query = "SELECT nspname FROM pg_namespace where nspname = \'%s\'" %schema
         print(query)

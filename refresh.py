@@ -134,6 +134,7 @@ def permission_switch(schemaname):
             os.remove(file)
 
     sql_file='/tmp/%s_%s.sql' %(schemaname,now.strftime("%Y%m%d"))
+    logging.info("Taking schema only backup from target database for %s schemas in %s" %(schemaname,sql_file)
     schema_backup_command = "pg_dump %s -n %s > %s" %(target_db,schemaname,sql_file)
     os.popen(schema_backup_command)
     v_sqlfile=open(sql_file,'r')

@@ -96,6 +96,7 @@ def target_schema_check():
 	date = now.strftime("%Y%m%d")
         logging.info("Checking if %s schema exists in %s database" %(schema,target_db))
         query = "SELECT nspname FROM pg_namespace where nspname = \'%s\'" %schema
+        print(query)
         get_schema = con.query(query)
         row = get_schema.getresult()
         print(row)

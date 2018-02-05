@@ -232,4 +232,7 @@ if __name__ == '__main__':
             sys.exit()
         else:
             gpdbrestore_restore()
-            permission_switch()
+            file = open(source_schema,'r')
+            for schema in file:
+                schema = schema.rstrip('\n')
+                permission_switch(schema)

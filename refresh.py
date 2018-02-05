@@ -107,7 +107,7 @@ def target_schema_check():
             row = schema.getresult()
             if row:
                 logging.info("Failed to rename %s schema to %s_hold" %(schema,schema))
-                logging.info("Please rename the schemas and run restore manually using timestamp: %s" %get_backupkey()
+                logging.info("Please rename the schemas and run restore manually using timestamp: %s" %get_backupkey())
                 sys.exit()
             else:
                 logging.info("%s schema renamed successfully to %s_hold" %(schema,schema))

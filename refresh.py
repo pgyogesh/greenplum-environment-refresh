@@ -172,10 +172,9 @@ def permission_switch(schemaname):
 	v_grantfile_temp=open("/tmp/grantfile_temp.sql","a")
 	for r_line in v_grantfile:
 		new_role_line = r_line.replace('_' + source_environment + '_', '_' + target_environment + '_')
-		v_grantfile_temp.writelines(new_role_line)
-	v_grantfile.close()
-	v_grantfile_temp.close()
-
+        v_grantfile_temp.writelines(new_role_line)
+    v_grantfile.close()
+    v_grantfile_temp.close()
     logging.info("Creating new 'ALTER TABLE .. OWNER TO' statement file with "+ target_environment + " roles")
     v_ownerfile=open("/tmp/ownerfile.sql","r")
     v_ownerfile_temp=open("/tmp/ownerfile_temp.sql","a")

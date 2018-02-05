@@ -214,7 +214,6 @@ def permission_switch(schemaname):
     for file in temp_files:
         if os.path.isfile(file):
             os.remove(file)
-    logging.info("Environment refresh from %s to %s completed" %(source_environment,target_environment))
 
 if __name__ == '__main__':
     get_starttime()
@@ -235,3 +234,4 @@ if __name__ == '__main__':
             for schema in file:
                 schema = schema.rstrip('\n')
                 permission_switch(schema)
+            logging.info("Environment refresh from %s to %s completed" %(source_environment,target_environment))

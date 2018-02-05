@@ -185,7 +185,7 @@ def permission_switch(schemaname):
 	v_ownerfile.close()
 	v_ownerfile_temp.close()
 	logging.info("Gathering all statements in one SQL file")
-	final_sql_file= target_environment +"_refresh.sql"
+	final_sql_file= target_environment + schema + "_refresh.sql"
 	revoke_sql=open("/tmp/revokefile.sql","r")
 	grant_sql=open("/tmp/grantfile_temp.sql","r")
 	owner_sql=open("/tmp/ownerfile_temp.sql","r")
@@ -210,7 +210,7 @@ def permission_switch(schemaname):
 
 	logging.info("Deleting temporary files")
         logging.info("Running generated SQL file")
-        run_permissions = "psql -d %s -f %s > /tmp/permissions.out" %(target_db,sql_file)
+        run_permissions = "psql -d %s -f %s > /tmp/permissions.out" %(target_db,final_sql_file)
         os.popen(run_permissions)
 	for file in temp_files:
     		if os.path.isfile(file):

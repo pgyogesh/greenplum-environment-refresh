@@ -12,7 +12,7 @@ logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',level=logging
 
 parser = optparse.OptionParser()
 parser.add_option("-t","--type", dest='type', choices=['pg_dump','gpcrondump'], action="store",help="Specify the type of backup")
-parser.add_argument("-c","--config_file", dest = 'config_file',,
+parser.add_option("-c","--config_file", dest = 'config_file',
                     action="store",help="Specify the config file")
 options, args = parser.parse_args()
 config = ConfigParser.ConfigParser()

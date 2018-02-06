@@ -5,19 +5,18 @@ import time
 import datetime
 import logging
 import ConfigParser
-import argparse
+import optparse
 from pygresql.pg import DB
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',level=logging.DEBUG)
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-t","--type", metavar="<type>", choices=['pg_dump','gpcrondump'],
-                   required=True, action="store",help="Specify the type of backup")
-parser.add_argument("-c","--config_file", required=True,
+parser = optparse.OptionParser()
+parser.add_option("-t","--type", dest='type', choices=['pg_dump','gpcrondump'], action="store",help="Specify the type of backup")
+parser.add_argument("-c","--config_file", dest = 'config_file',,
                     action="store",help="Specify the config file")
-args = parser.parse_args()
+options, args = parser.parse_args()
 config = ConfigParser.ConfigParser()
-config.read(args.config_file)
+config.read(options.config_file)
 
 
 # Source System Information
@@ -217,7 +216,7 @@ def permission_switch(schemaname):
 
 if __name__ == '__main__':
     get_starttime()
-    if args.type == 'pg_dump':
+    if options.type == 'pg_dump':
         pg_dump_backup()
         pg_dump_restore()
     else:

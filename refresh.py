@@ -10,6 +10,14 @@ from pygresql.pg import DB
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',level=logging.DEBUG)
 
+#'''
+# Below block of code adds command line options
+# This script has 3 options:
+#     1. -t / --type         - This is to choose between pg_dump and gpcrondump
+#     2. -c / --config_file  - This to supply configuration file
+#     3. -h / --help         - This is to print help
+#,,,
+
 parser = optparse.OptionParser()
 parser.add_option("-t","--type", dest='type', choices=['pg_dump','gpcrondump'], action="store",help="Specify the type of backup")
 parser.add_option("-c","--config_file", dest = 'config_file',
@@ -20,6 +28,7 @@ config.read(options.config_file)
 
 
 # Source System Information
+
 logging.info("Getting source database Information")
 source_db = config.get("source","database")
 source_host = config.get("source","host")
@@ -29,6 +38,7 @@ source_schemafile = config.get("source","schema-file")
 source_environment = config.get("source","environment")
 
 # Target System Information
+
 logging.info("Getting target database Information")
 target_db = config.get("target","database")
 target_host = config.get("target","host")
@@ -39,25 +49,37 @@ target_environment = config.get("target","environment")
 
 # Getting timestamp of script start, Later this timestamp will be used to compare with dump_key from gpcrondump_history.
 
-#logging.info("Script Start Timestamp = %d" %start_timestamp)
 logging.info("Source Database        = %s" %source_db)
 logging.info("Target Database        = %s" %target_db)
 
 
-#backup_command="gpcrondump -x %s -s %s -h -a" %(source_db,source_schema)
 now = datetime.datetime.now()
 start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
 
+#get_starttime():This is to get start time of function compare with dump key from gpcrondump_history table
+
 def get_starttime():
     return int(start_timestamp)
+
+# pg_dump_backup(): This function takes pg_dump backup
 
 def pg_dump_backup():
     backup_command="pg_dump -d %s -h %s -U %s -n %s > %s" %(source_db,source_host,source_user,source_schema,backup_file)
     os.popen(backup_command)
 
+# pg_dump_restore: This function restores backup taken by pg_dump
 def pg_dump_restore():
     restore_command="psql -d %s -h %s -U %s < %s" %(target_db,target_host,target_user,backup_file)
     os.popen(restore_command)
+
+#'''
+# schema_list_for_cmd:
+# This functions reads lines from schema file and converts it into below format
+# Ex:
+#   schema_list_for_cmd('-s')
+#   -s schema1 -s schema2 -s schema2
+# This would help us while running pg_dump backup is it doesn't support schema file option
+#,,,
 
 def schema_list_for_cmd(option):
     schemas = ''
@@ -68,6 +90,14 @@ def schema_list_for_cmd(option):
         schemas = schemas + option + ' ' + schema + ' '
     schema_file.close()
     return schemas
+
+
+#'''
+# gpdbrestore_restore():
+# This function restores backup taken with gpcrondump
+# After gpdbrestore, It checks if schemas exists in database
+# If schema doesn't exists, Script exits
+#,,,
 
 def gpdbrestore_restore():
     target_schema_check()
@@ -84,7 +114,16 @@ def gpdbrestore_restore():
         if row:
             logging.info("Restore completed for %s schema" %schema)
         else:
-            logging.info("Restore failed for %s schema" %schema)
+            logging.error("Restore failed for %s schema" %schema)
+            sys.exit()
+
+#'''
+# target_schema_check()
+# This function checks if schema ready exists in target database
+# If schema exists, It renamed in below format
+# schemaname__hold_%Y%m%d%H%M%S
+# It again checks if schemas are renamed. If not, Script exits
+#,,,
 
 def target_schema_check():
     con = DB(dbname=target_db)
@@ -106,8 +145,8 @@ def target_schema_check():
             nsp = con.query("SELECT nspname FROM pg_namespace where nspname = \'%s\'" %schema)
             row = nsp.getresult()
             if row:
-                logging.info("Failed to rename %s schema to %s_hold_%s" %(schema,schema,date))
-                logging.info("Please rename the schemas and run restore manually using timestamp: %s" %get_backupkey())
+                logging.error("Failed to rename %s schema to %s_hold_%s" %(schema,schema,date))
+                logging.error("Please rename the schemas and run restore manually using timestamp: %s" %get_backupkey())
                 sys.exit()
             else:
                 logging.info("%s schema renamed successfully to %s_hold_%s" %(schema,schema,date))
@@ -116,6 +155,17 @@ def target_schema_check():
     schema_list.close()
     con.close()
 
+#'''
+# get_dumpkey():
+# This function gets backup_key from gpcrondump_history table
+# where:
+#   options = options provided to gpcrondump
+#   exit_text = "COMPLETED"
+# order by
+#   dump_key desc
+# limit 1
+#,,,
+
 def get_backupkey():
     con = DB(dbname=source_db, host=source_host, user=source_user)
     opts = backup_command[11:-13]
@@ -123,6 +173,17 @@ def get_backupkey():
     row = key.dictresult()
     dump_key = row[0]["dump_key"]
     return int(dump_key)
+
+#'''
+# permission_switch(schemaname):
+# This function switches roles from source environment to target environement
+# It takes --schema-only backup from restored schema from target database
+# Then fetches GRANT, ALTER TABLE .. OWNER TO statements from schema only backup into temp files.
+# Generates REVOKE statements by replacing REVOKE with GRANT and FROM with TO.
+# Generates ALTER TABLE .. OWNER TO statements by replacing source environment to target environment (Ex: _prod_ to _uat_)
+# Generated GRANT statements by replacing source enviironment to target environment(Ex: _prod_ to _uat_)
+# Gathers all generated statements into one file and runs same on target database
+#,,,
 
 def permission_switch(schemaname):
     logging.info("Switching roles from %s to %s for %s schema" %(source_environment, target_environment,schemaname))
@@ -223,12 +284,13 @@ if __name__ == '__main__':
         time.sleep(1)
         backup_command="gpcrondump -x %s %s-h -a 2> /dev/null" %(source_db,schema_list_for_cmd('-s'))
         os.popen(backup_command)
-        if get_backupkey() < get_starttime():
+        if get_backupkey() < get_starttime(): # Checks if dump_key. If it is lesser than script start time, It considers the backup is failed and exits the script
             logging.error("Backup is failed. Please check backup log /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))
             sys.exit()
         else:
             logging.info("Backup completed successfully")
-            gpdbrestore_restore()
+            gpdbrestore_restore() # Runs the restore funtions
+            # Below block of code gets the schema list from schemafile and runs permission_switch(schemaname) for every schema
             file = open(source_schemafile,'r')
             for schema in file:
                 schema = schema.rstrip('\n')

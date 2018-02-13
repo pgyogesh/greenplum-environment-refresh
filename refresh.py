@@ -4,7 +4,6 @@ import re
 import time
 import datetime
 import logging
-import ConfigParser
 import optparse
 from pygresql.pg import DB
 
@@ -78,7 +77,7 @@ def pg_dump_restore():
 # Ex:
 #   schema_list_for_cmd('-s')
 #   -s schema1 -s schema2 -s schema2
-# This would help us while running pg_dump backup is it doesn't support schema file option
+# This would help us while running pg_dump backup as it doesn't support schema file option
 #,,,
 
 def schema_list_for_cmd(option):

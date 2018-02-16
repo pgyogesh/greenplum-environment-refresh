@@ -57,6 +57,25 @@ start_timestamp = int(now.strftime("%Y%m%d%H%M%S"))
 
 #get_starttime():This is to get start time of function compare with dump key from gpcrondump_history table
 
+def sendmail(body):
+    ENVIRONMENT = source_db
+    SENDER = '%s-gpadmin@yourdomain.com' %ENVIRONMENT
+    RECEIVERS = 'DBA-Greenplum@yourdomain.com'
+    sender = SENDER
+    receivers = RECEIVERS
+
+    message = """From: """ + SENDER + """
+To: """ + RECEIVERS + """
+MIME-Version: 1.0
+Content-type: text/html
+Subject: Environment refresh status \n"""
+    message = message + body
+    try:
+        smtpObj = smtplib.SMTP('localhost')
+        smtpObj.sendmail(sender, receivers, message)
+    except SMTPException:
+        logging.error("Unable to send email")
+
 def get_starttime():
     return int(start_timestamp)
 
@@ -114,6 +133,7 @@ def gpdbrestore_restore():
             logging.info("Restore completed for %s schema" %schema)
         else:
             logging.error("Restore failed for %s schema" %schema)
+            sendmail("Restore failed for %s schema" %schema)
             sys.exit()
 
 #'''
@@ -146,6 +166,7 @@ def target_schema_check():
             if row:
                 logging.error("Failed to rename %s schema to %s_hold_%s" %(schema,schema,date))
                 logging.error("Please rename the schemas and run restore manually using timestamp: %s" %get_backupkey())
+                sendmail("Failed to rename %s schema to %s_hold_%s, Please Check logs" %(schema,schema,date))
                 sys.exit()
             else:
                 logging.info("%s schema renamed successfully to %s_hold_%s" %(schema,schema,date))
@@ -285,9 +306,11 @@ if __name__ == '__main__':
         os.popen(backup_command)
         if get_backupkey() < get_starttime(): # Checks if dump_key. If it is lesser than script start time, It considers the backup is failed and exits the script
             logging.error("Backup is failed. Please check backup log /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))
+            sendmail("Backup is failed. Please check backup log /home/gpadmin/gpAdminlogs/gpcrondump_%s.log" %now.strftime("%Y%m%d"))
             sys.exit()
         else:
             logging.info("Backup completed successfully")
+            sendmail("Backup completed successfully")
             gpdbrestore_restore() # Runs the restore funtions
             # Below block of code gets the schema list from schemafile and runs permission_switch(schemaname) for every schema
             file = open(source_schemafile,'r')

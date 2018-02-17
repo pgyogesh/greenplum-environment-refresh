@@ -35,6 +35,7 @@ source_user = config.get("source","user")
 source_port = config.get("source","port")
 source_schemafile = config.get("source","schema-file")
 source_environment = config.get("source","environment")
+backup_file = config.get("source","Cbackup-file")
 
 # Target System Information
 
@@ -82,13 +83,31 @@ def get_starttime():
 # pg_dump_backup(): This function takes pg_dump backup
 
 def pg_dump_backup():
-    backup_command="pg_dump -d %s -h %s -U %s -n %s > %s" %(source_db,source_host,source_user,source_schema,backup_file)
+    backup_command="pg_dump -d %s -h %s -U %s %s > %s" %(source_db,source_host,source_user,schema_list_for_cmd('-n'),backup_file)
     os.popen(backup_command)
+    sendmail("pg_dump backup completed")
 
 # pg_dump_restore: This function restores backup taken by pg_dump
 def pg_dump_restore():
+    target_schema_check()
     restore_command="psql -d %s -h %s -U %s < %s" %(target_db,target_host,target_user,backup_file)
     os.popen(restore_command)
+    schemas = ''
+    schema_file = open(source_schemafile,'r')
+    schema_file.seek(0)
+    for num,line in enumerate(schema_file, 1):
+        schema = line.rstrip('\n')
+        con = DB(dbname=target_db)
+        get_schema = con.query("SELECT nspname FROM pg_namespace where nspname = \'%s\'" %schema)
+        row = get_schema.getresult()
+        if row:
+            logging.info("Restore completed for %s schema" %schema)
+            sendmail("pg_dump restore completed")
+        else:
+            logging.error("Restore failed for %s schema" %schema)
+            sendmail("Restore failed for %s schema" %schema)
+            sys.exit()
+
 
 #'''
 # schema_list_for_cmd:

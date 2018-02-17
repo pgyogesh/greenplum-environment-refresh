@@ -37,7 +37,7 @@ source_user = config.get("source","user")
 source_port = config.get("source","port")
 source_schemafile = config.get("source","schema-file")
 source_environment = config.get("source","environment")
-backup_file = config.get("source","Cbackup-file")
+backup_file = config.get("source","backup-file")
 
 # Target System Information
 

@@ -5,6 +5,8 @@ import time
 import datetime
 import logging
 import optparse
+import ConfigParser
+import smtplib
 from pygresql.pg import DB
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',level=logging.DEBUG)

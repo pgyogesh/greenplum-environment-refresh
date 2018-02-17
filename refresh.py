@@ -334,8 +334,8 @@ if __name__ == '__main__':
             sendmail("Backup completed successfully")
             gpdbrestore_restore() # Runs the restore funtions
             # Below block of code gets the schema list from schemafile and runs permission_switch(schemaname) for every schema
-            file = open(source_schemafile,'r')
-            for schema in file:
-                schema = schema.rstrip('\n')
-                permission_switch(schema)
-            logging.info("Environment refresh from %s to %s completed" %(source_environment,target_environment))
+    file = open(source_schemafile,'r')
+    for schema in file:
+        schema = schema.rstrip('\n')
+        permission_switch(schema)
+        logging.info("Environment refresh from %s to %s completed" %(source_environment,target_environment))

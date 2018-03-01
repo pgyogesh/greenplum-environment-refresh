@@ -99,7 +99,7 @@ logging.info("Creating new 'ALTER TABLE .. OWNER TO' statement file with "+ opti
 v_ownerfile=open("/tmp/ownerfile.sql","r")
 v_ownerfile_temp=open("/tmp/ownerfile_temp.sql","a")
 for o_line in v_ownerfile:
-    new_role_line = o_line.replace('_' + options.from_env + '_', '_' + options.to_env + '_')
+    new_role_line = o_line.replace('_' + options.from_env + '_rl', '_' + options.to_env + '_rl')
     v_ownerfile_temp.writelines(new_role_line)
     #v_ownerfile_temp.write('\n')
 

@@ -271,7 +271,7 @@ def permission_switch(schemaname):
     v_grantfile=open("/tmp/grantfile.sql","r")
     v_grantfile_temp=open("/tmp/grantfile_temp.sql","a")
     for r_line in v_grantfile:
-        new_role_line = r_line.replace('_' + source_environment + '_', '_' + target_environment + '_')
+        new_role_line = r_line.replace('_' + source_environment + '_rl', '_' + target_environment + '_rl')
         v_grantfile_temp.writelines(new_role_line)
     v_grantfile.close()
     v_grantfile_temp.close()
@@ -279,7 +279,7 @@ def permission_switch(schemaname):
     v_ownerfile=open("/tmp/ownerfile.sql","r")
     v_ownerfile_temp=open("/tmp/ownerfile_temp.sql","a")
     for o_line in v_ownerfile:
-        new_role_line = o_line.replace('_' + source_environment + '_', '_' + target_environment + '_')
+        new_role_line = o_line.replace('_' + source_environment + '_rl', '_' + target_environment + '_rl')
         v_ownerfile_temp.writelines(new_role_line)
     v_ownerfile.close()
     v_ownerfile_temp.close()

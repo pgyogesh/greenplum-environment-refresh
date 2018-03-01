@@ -83,7 +83,7 @@ logging.info("Creating new GRANT statement's file with "+ options.to_env + " rol
 v_grantfile=open("/tmp/grantfile.sql","r")
 v_grantfile_temp=open("/tmp/grantfile_temp.sql","a")
 for r_line in v_grantfile:
-    new_role_line = r_line.replace('_' + options.from_env + '_', '_' + options.to_env + '_')
+    new_role_line = r_line.replace('_' + options.from_env + '_rl', '_' + options.to_env + '_rl')
     v_grantfile_temp.writelines(new_role_line)
     #v_grantfile_temp.write('\n')
 
